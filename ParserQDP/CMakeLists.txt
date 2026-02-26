@@ -1,0 +1,45 @@
+# QDP行情解析器CMake配置
+CMAKE_MINIMUM_REQUIRED(VERSION 3.0.0)
+
+PROJECT(ParserQDP LANGUAGES CXX)
+SET(CMAKE_CXX_STANDARD 17)
+
+SET(SRC  
+    ${PROJECT_SOURCE_DIR}/ParserQDP.cpp
+    ${PROJECT_SOURCE_DIR}/ParserQDP.h
+)
+
+SET(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/build_${PLATFORM}/${CMAKE_BUILD_TYPE}/bin)
+
+INCLUDE_DIRECTORIES(${INCS})
+LINK_DIRECTORIES(${LNKS})
+ADD_LIBRARY(ParserQDP SHARED ${SRC})
+
+IF (MSVC)
+    # Windows平台特定配置
+    TARGET_LINK_LIBRARIES(ParserQDP ws2_32)
+ELSE ()
+    # Linux平台特定配置
+    SET(LIBS
+        boost_thread
+        boost_filesystem
+        dl
+        pthread
+    )
+    TARGET_LINK_LIBRARIES(ParserQDP ${LIBS})
+    
+    SET_TARGET_PROPERTIES(ParserQDP PROPERTIES
+        CXX_VISIBILITY_PRESET hidden
+        C_VISIBILITY_PRESET hidden
+        VISIBILITY_INLINES_HIDDEN 1
+        LINK_FLAGS_RELEASE -s)
+ENDIF()
+
+# 复制依赖的QDP库文件
+IF (WIN32)
+    ADD_CUSTOM_COMMAND(TARGET ParserQDP POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        ${PROJECT_SOURCE_DIR}/../API/QDP7.0.0/x64/qdmdapi.dll
+        ${LIBRARY_OUTPUT_PATH}/qdmdapi.dll
+    )
+ENDIF()
