@@ -1,1 +1,2 @@
 适配wondertrader框架，QDP极速柜台的交易和行情通道
+编译时将QDP的API整个目录QDP7.0.0放到wondertrader源码src/API/ 目录下，ParserQDP和TraderQDP放到src/ 目录下
